@@ -1,31 +1,60 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Insano</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+-- ✅ FLY COM BOTÃO COMPATÍVEL COM SWIFT EXECUTOR
 
-    <div class="login-container">
-        <h1>Entrar</h1>
-        <form id="login-form">
-            <input type="text" id="username" placeholder="Usuário" required>
-            <input type="password" id="password" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
-    </div>
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hum = char:WaitForChild("HumanoidRootPart")
 
-    <div id="app-container" class="hidden">
-        <div class="phone">
-            <img src="iphone.png" alt="iPhone 16">
-            <div id="camera-screen">
-                <video id="camera" autoplay></video>
-            </div>
-        </div>
-    </div>
+-- Criar GUI
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.ResetOnSpawn = false
 
-    <script src="script.js"></script>
-</body>
-</html>
+local botao = Instance.new("TextButton", gui)
+botao.Size = UDim2.new(0, 100, 0, 40)
+botao.Position = UDim2.new(0, 20, 0, 100)
+botao.Text = "ATIVAR FLY"
+botao.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+botao.TextColor3 = Color3.new(1, 1, 1)
+botao.TextSize = 20
+botao.Font = Enum.Font.GothamBold
+
+local flying = false
+local speed = 50
+
+-- Atalhos
+local UIS = game:GetService("UserInputService")
+local direction = Vector3.zero
+
+-- Controle de teclas
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if flying then
+		if input.KeyCode == Enum.KeyCode.W then direction = Vector3.new(0, 0, -1) end
+		if input.KeyCode == Enum.KeyCode.S then direction = Vector3.new(0, 0, 1) end
+		if input.KeyCode == Enum.KeyCode.A then direction = Vector3.new(-1, 0, 0) end
+		if input.KeyCode == Enum.KeyCode.D then direction = Vector3.new(1, 0, 0) end
+		if input.KeyCode == Enum.KeyCode.Space then direction = Vector3.new(0, 1, 0) end
+		if input.KeyCode == Enum.KeyCode.LeftShift then direction = Vector3.new(0, -1, 0) end
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if flying then
+		direction = Vector3.zero
+	end
+end)
+
+-- Loop de voo
+game:GetService("RunService").RenderStepped:Connect(function()
+	if flying then
+		local cam = workspace.CurrentCamera.CFrame
+		local move = cam:VectorToWorldSpace(direction)
+		hum.Velocity = move * speed
+	end
+end)
+
+-- Botão ativador
+botao.MouseButton1Click:Connect(function()
+	flying = not flying
+	botao.Text = flying and "FLY: ON" or "ATIVAR FLY"
+	botao.BackgroundColor3 = flying and Color3.fromRGB(255, 170, 0) or Color3.fromRGB(0, 200, 0)
+end)
