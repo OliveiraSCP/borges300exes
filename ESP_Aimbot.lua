@@ -1,126 +1,64 @@
--- ESP + Aimbot Mobile Delta Executor
--- Script pronto para testes autorizados
+-- ✅ FLY COM BOTÃO (Swift/Delta Executor)
+-- Autor: MARBAS CREATOR
+-- Oficial Kaynã (testes autorizados)
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hum = char:WaitForChild("HumanoidRootPart")
 
--- Configuração
-local ESPEnabled = true
-local AimbotEnabled = false
-local TeamCheck = true
-local ESPColor = Color3.fromRGB(255,0,0)
-local AimbotFOV = 50 -- pixels do centro da tela
-local AimbotKey = Enum.KeyCode.E -- tecla para aimbot (Delta Mobile considera toque no centro)
+-- Configurações
+local flying = false
+local speed = 50
 
--- GUI touch-friendly
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 220, 0, 150)
-Frame.Position = UDim2.new(0, 10, 0, 10)
-Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Frame.BorderSizePixel = 0
-Frame.Parent = ScreenGui
+local botao = Instance.new("TextButton")
+botao.Size = UDim2.new(0, 120, 0, 50)
+botao.Position = UDim2.new(0, 20, 0, 100)
+botao.Text = "ATIVAR FLY"
+botao.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+botao.TextColor3 = Color3.new(1, 1, 1)
+botao.TextSize = 22
+botao.Font = Enum.Font.GothamBold
+botao.Parent = gui
 
--- ESP Toggle
-local ESPButton = Instance.new("TextButton")
-ESPButton.Size = UDim2.new(0, 200, 0, 50)
-ESPButton.Position = UDim2.new(0, 10, 0, 10)
-ESPButton.Text = "ESP: ON"
-ESPButton.TextColor3 = Color3.fromRGB(255,255,255)
-ESPButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
-ESPButton.Parent = Frame
+-- Input
+local UIS = game:GetService("UserInputService")
+local direction = Vector3.zero
 
-ESPButton.MouseButton1Click:Connect(function()
-    ESPEnabled = not ESPEnabled
-    ESPButton.Text = ESPEnabled and "ESP: ON" or "ESP: OFF"
-end)
-
--- Aimbot Toggle
-local AimButton = Instance.new("TextButton")
-AimButton.Size = UDim2.new(0, 200, 0, 50)
-AimButton.Position = UDim2.new(0, 10, 0, 70)
-AimButton.Text = "Aimbot: OFF"
-AimButton.TextColor3 = Color3.fromRGB(255,255,255)
-AimButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
-AimButton.Parent = Frame
-
-AimButton.MouseButton1Click:Connect(function()
-    AimbotEnabled = not AimbotEnabled
-    AimButton.Text = AimbotEnabled and "Aimbot: ON" or "Aimbot: OFF"
-end)
-
--- Função ESP
-local function createESP(player)
-    local box = Instance.new("BoxHandleAdornment")
-    box.Adornee = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    box.AlwaysOnTop = true
-    box.Size = Vector3.new(2,5,1)
-    box.Color3 = ESPColor
-    box.Transparency = 0.5
-    box.Parent = workspace
-
-    local conn
-    conn = RunService.RenderStepped:Connect(function()
-        if not ESPEnabled or not player.Character or (TeamCheck and player.Team == LocalPlayer.Team) then
-            box.Visible = false
-        else
-            box.Visible = true
-            box.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
-        end
-    end)
-
-    player.AncestryChanged:Connect(function()
-        if not player:IsDescendantOf(game) then
-            conn:Disconnect()
-            box:Destroy()
-        end
-    end)
-end
-
-for _, player in pairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        createESP(player)
-    end
-end
-
-Players.PlayerAdded:Connect(function(player)
-    if player ~= LocalPlayer then
-        createESP(player)
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if flying then
+        if input.KeyCode == Enum.KeyCode.W then direction = Vector3.new(0,0,-1) end
+        if input.KeyCode == Enum.KeyCode.S then direction = Vector3.new(0,0,1) end
+        if input.KeyCode == Enum.KeyCode.A then direction = Vector3.new(-1,0,0) end
+        if input.KeyCode == Enum.KeyCode.D then direction = Vector3.new(1,0,0) end
+        if input.KeyCode == Enum.KeyCode.Space then direction = Vector3.new(0,1,0) end
+        if input.KeyCode == Enum.KeyCode.LeftShift then direction = Vector3.new(0,-1,0) end
     end
 end)
 
--- Aimbot Mobile (centro da tela)
-local function getClosestPlayerMobile()
-    local center = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
-    local closestPlayer = nil
-    local shortestDistance = AimbotFOV
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            if TeamCheck and player.Team == LocalPlayer.Team then continue end
-            local screenPos, onScreen = Camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
-            if onScreen then
-                local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                if dist < shortestDistance then
-                    shortestDistance = dist
-                    closestPlayer = player
-                end
-            end
-        end
+UIS.InputEnded:Connect(function(input)
+    if flying then
+        direction = Vector3.zero
     end
-    return closestPlayer
-end
+end)
 
--- Loop do aimbot
-RunService.RenderStepped:Connect(function()
-    if AimbotEnabled then
-        local target = getClosestPlayerMobile()
-        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
-        end
+-- Loop de voo
+game:GetService("RunService").RenderStepped:Connect(function()
+    if flying then
+        local cam = workspace.CurrentCamera.CFrame
+        local move = cam:VectorToWorldSpace(direction)
+        hum.Velocity = move * speed
     end
+end)
+
+-- Botão ativador
+botao.MouseButton1Click:Connect(function()
+    flying = not flying
+    botao.Text = flying and "FLY: ON" or "ATIVAR FLY"
+    botao.BackgroundColor3 = flying and Color3.fromRGB(255, 170, 0) or Color3.fromRGB(0, 200, 0)
 end)
