@@ -2,44 +2,43 @@ repeat task.wait() until game:IsLoaded()
 
 --== Configurações Gerais ==--
 getgenv().Script_Mode = "BorgesHub_Script"
-wait(5) -- Garantir execução completa
+wait(2)
 
--- Webhook para notificações
+-- Webhook opcional
 _G.Webhook  = {
     ['WebhookLink'] = 'COLE_SEU_LINK_AQUI',
-    ['SendWebhookReward'] = true -- Notificar quando teleportar ou salvar posição
+    ['SendWebhookReward'] = true
 }
 
 -- Configurações do Hub
 _G.SettingsBH = {
-    ["AutoSavePosition"] = false,      -- Salvar posição automaticamente a cada X segundos
-    ["TeleportDelay"] = 0.5,           -- Delay entre teleports (em segundos)
-    ["EnableBlackScreen"] = true,      -- Tela preta ao teletransportar
-    ["EquipBestItems"] = true,         -- Equipar melhor item disponível
-    ["SpeedMultiplier"] = 2,           -- Velocidade do player multiplicada
-    ["AutoLeaveAtWave"] = 50           -- Exemplo de função extra (se usar em jogo de waves)
+    ["AutoSavePosition"] = false,
+    ["TeleportDelay"] = 0.5,
+    ["EnableBlackScreen"] = true,
+    ["SpeedMultiplier"] = 2
 }
 
--- Variáveis globais do Hub
+-- Variáveis globais
 getgenv().SavedPosition = nil
 getgenv().HubEnabled = false
 
--- Funções do Hub
+-- Funções principais
 getgenv().BorgesHub = {}
 
 function getgenv().BorgesHub.SavePosition()
-    if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        getgenv().SavedPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    local plr = game.Players.LocalPlayer
+    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        getgenv().SavedPosition = plr.Character.HumanoidRootPart.Position
         print("[BorgesHub] Position Saved!")
         if _G.Webhook.SendWebhookReward then
             print("[Webhook] Notificando posição salva...")
-            -- Aqui você pode adicionar envio real do webhook
         end
     end
 end
 
 function getgenv().BorgesHub.TeleportPosition()
-    if getgenv().SavedPosition and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    local plr = game.Players.LocalPlayer
+    if getgenv().SavedPosition and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
         if _G.SettingsBH.EnableBlackScreen then
             local screen = Instance.new("Frame")
             screen.Size = UDim2.new(1,0,1,0)
@@ -47,11 +46,11 @@ function getgenv().BorgesHub.TeleportPosition()
             screen.ZIndex = 9999
             screen.Parent = game:GetService("CoreGui")
             task.wait(0.1)
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(getgenv().SavedPosition)
+            plr.Character.HumanoidRootPart.CFrame = CFrame.new(getgenv().SavedPosition)
             task.wait(0.2)
             screen:Destroy()
         else
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(getgenv().SavedPosition)
+            plr.Character.HumanoidRootPart.CFrame = CFrame.new(getgenv().SavedPosition)
         end
         print("[BorgesHub] Teleported!")
         if _G.Webhook.SendWebhookReward then
@@ -65,13 +64,29 @@ function getgenv().BorgesHub.ToggleHub()
     print("[BorgesHub] Hub " .. (getgenv().HubEnabled and "Enabled" or "Disabled"))
 end
 
--- Função extra: aumentar velocidade
 function getgenv().BorgesHub.SetSpeed(multiplier)
-    if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16 * (multiplier or _G.SettingsBH.SpeedMultiplier)
-        print("[BorgesHub] Speed set to "..tostring(game.Players.LocalPlayer.Character.Humanoid.WalkSpeed))
+    local plr = game.Players.LocalPlayer
+    if plr.Character and plr.Character:FindFirstChild("Humanoid") then
+        plr.Character.Humanoid.WalkSpeed = 16 * (multiplier or _G.SettingsBH.SpeedMultiplier)
+        print("[BorgesHub] Speed set to "..plr.Character.Humanoid.WalkSpeed)
     end
 end
+
+-- GUI mínima só pra toggle visual opcional
+local CoreGui = game:GetService("CoreGui")
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 120, 0, 40)
+toggleButton.Position = UDim2.new(0, 20, 0, 20)
+toggleButton.Text = "BorgesHub"
+toggleButton.BackgroundColor3 = Color3.fromRGB(70,70,70)
+toggleButton.TextColor3 = Color3.fromRGB(255,255,255)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextScaled = true
+toggleButton.Parent = CoreGui
+
+toggleButton.MouseButton1Click:Connect(function()
+    getgenv().BorgesHub.ToggleHub()
+end)
 
 -- AutoSavePosition (se ativado)
 if _G.SettingsBH.AutoSavePosition then
