@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+body { 
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(135deg,#ffeb3b,#f9a825,#ff6f00); 
+  display:flex; justify-content:center; align-items:center; height:100vh; margin:0;
+  overflow:hidden;
+}
+.card { 
+  background: rgba(34,34,34,0.9);
+  padding:40px;
+  border-radius:20px;
+  width:400px;
+  text-align:center;
+  box-shadow: 0 0 20px #ffd600, 0 0 40px #ffea00;
+  transition: all 0.3s ease;
+}
+.card h1, .card h2 { 
+  color:#fff;
+  text-shadow: 0 0 10px #ffd600, 0 0 20px #ffea00;
+}
+input {
+  width:100%; padding:15px; margin:10px 0; border:none; border-radius:15px;
+  font-size:16px; outline:none; text-align:center; box-shadow:0 0 10px #ffeb3b inset;
+}
+button {
+  width:100%; padding:15px; margin:10px 0; border:none; border-radius:15px;
+  font-size:16px; font-weight:bold;
+  background:#ffeb3b; color:#333;
+  cursor:pointer;
+  transition:0.2s;
+  box-shadow: 0 0 10px #ffd600, 0 0 20px #ffea00;
+}
+button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px #ffd600, 0 0 40px #ffea00;
+}
+.hidden { display:none; }
+#banana { margin-top:20px; cursor:pointer; transition: transform 0.2s; }
+#banana:hover { transform: scale(1.2) rotate(-10deg); }

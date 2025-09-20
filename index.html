@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Banana Tap</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LOGIN / CADASTRO -->
+  <div id="loginCard" class="card">
+    <h1>🍌 Banana Tap 🍌</h1>
+    <input type="text" id="emailInput" placeholder="Email">
+    <input type="text" id="userInput" placeholder="Usuário">
+    <input type="password" id="passInput" placeholder="Senha">
+    <div class="buttons">
+      <button id="createAccountBtn">Criar Conta</button>
+      <button id="loginBtn">Entrar</button>
+    </div>
+    <p id="loginError"></p>
+  </div>
+
+  <!-- MENU PRINCIPAL -->
+  <div id="mainMenu" class="card hidden">
+    <h2>Bem-vindo, <span id="menuUser"></span> 🍌</h2>
+    <button id="startGameBtn">Começar</button>
+    <button id="shopBtn">Loja</button>
+    <button id="topGlobalBtn">Top Global</button>
+  </div>
+
+  <!-- JOGO -->
+  <div id="gameCard" class="card hidden">
+    <h2>Banana Tap 🍌</h2>
+    <p>Clicks: <span id="clicks">0</span></p>
+    <img id="banana" src="banana1.png" alt="Banana" width="150">
+    <button id="exitGameBtn">Sair</button>
+  </div>
+
+  <!-- RANKING -->
+  <div id="rankingCard" class="card hidden">
+    <h2>🏆 Top Global 🏆</h2>
+    <ul id="rankingList"></ul>
+    <button id="backMenuBtn">Voltar</button>
+  </div>
+
+</div>
+
+<script src="client.js"></script>
+</body>
+</html>
